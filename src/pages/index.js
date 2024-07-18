@@ -1,9 +1,10 @@
 import { render } from '@lit-labs/ssr';
 import { html } from 'lit';
+
 import '../components/simple-greeter.js';
 import '../components/simple-icon.js';
 
-export function* renderIndex({ name }) {
+export function* renderTemplate() {
   yield `
     <!doctype html>
     <html>
@@ -26,9 +27,9 @@ export function* renderIndex({ name }) {
   `;
   yield* render(html`
     <simple-greeter></simple-greeter>
-
     `);
   yield `
+
       <script type="module">
         // Start fetching the Lit hydration support module (note the absence
         // of "await" -- we don't want to block yet).
@@ -53,8 +54,13 @@ export function* renderIndex({ name }) {
         await litHydrateSupportInstalled;
 
         // Import component modules causing them to become interactive
-        import('./src/components/simple-greeter.js');
-        import('./src/components/simple-icon.js');
+        await Promise.allSettled([
+          import('./src/components/simple-greeter.js'),
+          import('./src/components/simple-icon.js'),
+        ])
+
+        const greeter = document.querySelector("simple-greeter")
+        greeter.icon = "Moto"
       </script>
     </body>
     </html>
